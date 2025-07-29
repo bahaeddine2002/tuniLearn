@@ -1,0 +1,161 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  TEACHER
+  ADMIN
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+model User {
+  id        Int        @id @default(autoincrement())
+  name      String
+  email     String     @unique
+  password  String
+  role      Role
+  profileImageUrl String? // Public profile picture (optional)
+  bio       String?       // Short biography (optional)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  // Relations
+  courses   Course[]   @relation("TeacherCourses")
+  enrollments Enrollment[]
+  reviews   Review[]
+  payments  Payment[]  @relation("UserPayments")
+  progresses Progress[]
+
+  @@map("users")
+}
+
+model Subject {
+  id      Int     @id @default(autoincrement())
+  name    String  @unique
+  courses Course[]
+  @@map("subjects")
+}
+
+model Course {
+  id        Int        @id @default(autoincrement())
+  title     String
+  description String
+  subject   Subject    @relation(fields: [subjectId], references: [id])
+  subjectId Int
+  teacher   User       @relation("TeacherCourses", fields: [teacherId], references: [id])
+  teacherId Int
+  chapters  Chapter[]
+  price     Float
+  approved  Boolean    @default(false)
+  coverImageUrl String?
+  learningObjectives String? // JSON stringified array
+  prerequisites String?      // Text
+  features String?           // JSON stringified array
+  resourceUrls String?       // JSON stringified array of file URLs/paths
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  enrollments Enrollment[]
+  reviews   Review[]
+  payments  Payment[]  @relation("CoursePayments")
+  // For teacher stats and public profile
+
+  @@map("courses")
+}
+
+model Chapter {
+  id        Int      @id @default(autoincrement())
+  title     String
+  course    Course   @relation(fields: [courseId], references: [id])
+  courseId  Int
+  sections  Section[]
+  order     Int      // Optional: For ordering chapters
+  @@map("chapters")
+}
+
+model Section {
+  id         Int      @id @default(autoincrement())
+  title      String
+  videoUrl   String?
+  pdfUrl     String?
+  chapter    Chapter   @relation(fields: [chapterId], references: [id])
+  chapterId  Int
+  order      Int      // Optional: For ordering sections
+  progresses Progress[]
+  @@map("sections")
+}
+
+model Enrollment {
+  id        Int     @id @default(autoincrement())
+  user      User    @relation(fields: [userId], references: [id])
+  userId    Int
+  course    Course  @relation(fields: [courseId], references: [id])
+  courseId  Int
+  enrolledAt DateTime @default(now())
+  progress  Progress[]
+  payment   Payment?   @relation(fields: [paymentId], references: [id])
+  paymentId Int? @unique
+
+
+  @@unique([userId, courseId])
+  @@map("enrollments")
+}
+
+model Progress {
+  id          Int        @id @default(autoincrement())
+  enrollment  Enrollment @relation(fields: [enrollmentId], references: [id])
+  enrollmentId Int
+  section     Section    @relation(fields: [sectionId], references: [id])
+  sectionId   Int
+  completed   Boolean    @default(false)
+  completedAt DateTime?
+  user        User       @relation(fields: [userId], references: [id])
+  userId      Int
+  @@unique([enrollmentId, sectionId])
+  @@map("progress")
+}
+
+model Review {
+  id        Int     @id @default(autoincrement())
+  user      User    @relation(fields: [userId], references: [id])
+  userId    Int
+  course    Course  @relation(fields: [courseId], references: [id])
+  courseId  Int
+  rating    Int     // 1-5 stars
+  comment   String?
+  createdAt DateTime @default(now())
+
+  @@unique([userId, courseId])
+  @@map("reviews")
+}
+
+model Payment {
+  id          Int        @id @default(autoincrement())
+  user        User       @relation("UserPayments", fields: [userId], references: [id])
+  userId      Int
+  course      Course     @relation("CoursePayments", fields: [courseId], references: [id])
+  courseId    Int
+  enrollment  Enrollment?
+  amount      Float
+  method      String     // Stripe, D17, E-dinar, etc.
+  status      PaymentStatus @default(PENDING)
+  paidAt      DateTime?  // Only filled on SUCCESS
+
+  @@map("payments")
+}
+
