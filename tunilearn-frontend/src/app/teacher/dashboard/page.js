@@ -8,6 +8,9 @@ import ProtectedRoute from '../../components/ProtectedRoute';
 function TeacherDashboardContent() {
   const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
+  if (!user || (user.role !== 'TEACHER' && user.role !== 'INSTRUCTOR')) {
+    return <div className="text-center py-20 text-red-600 font-bold">Not authorized</div>;
+  }
 
   // Enhanced data for SRS requirements
   const teacherStats = {

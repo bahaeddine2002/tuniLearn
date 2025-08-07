@@ -29,10 +29,11 @@ model User {
   id        Int        @id @default(autoincrement())
   name      String
   email     String     @unique
-  password  String
-  role      Role
-  profileImageUrl String? // Public profile picture (optional)
+  googleId  String     @unique // Google OAuth ID
+  role      Role?      // Optional until profile completion
+  profileImageUrl String? // Google profile picture
   bio       String?       // Short biography (optional)
+  profileCompleted Boolean @default(false) // Track if profile setup is complete
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   // Relations
@@ -64,6 +65,10 @@ model Course {
   price     Float
   approved  Boolean    @default(false)
   coverImageUrl String?
+  learningObjectives String? // JSON stringified array
+  prerequisites String?      // Text
+  features String?           // JSON stringified array
+  resourceUrls String?       // JSON stringified array of file URLs/paths
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   enrollments Enrollment[]

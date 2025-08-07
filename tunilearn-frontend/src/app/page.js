@@ -1,273 +1,22 @@
-'use client';
-
+"use client";
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useState } from 'react';
-import { useAuth } from './contexts/AuthContext';
 
-export default function Home() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, logout, isAuthenticated, isTeacher, isStudent } = useAuth();
+export default function HomePage() {
+  const [loadingCourses, setLoadingCourses] = useState(true);
+  const [coursesError, setCoursesError] = useState('');
+  const [featuredCourses, setFeaturedCourses] = useState([]);
+  const [testimonials, setTestimonials] = useState([]);
 
-  const featuredCourses = [
-    {
-      id: 1,
-      title: "Modern JavaScript Development",
-      instructor: "Ahmed Ben Salem",
-      rating: 4.8,
-      students: 2547,
-      price: 89,
-      image: "/course-1.jpg",
-      category: "Programming",
-      level: "Intermediate",
-      duration: "12 hours"
-    },
-    {
-      id: 2,
-      title: "Arabic Literature & Poetry",
-      instructor: "Fatma Khelifi",
-      rating: 4.9,
-      students: 1834,
-      price: 65,
-      image: "/course-2.jpg",
-      category: "Literature",
-      level: "Beginner",
-      duration: "8 hours"
-    },
-    {
-      id: 3,
-      title: "Digital Marketing Mastery",
-      instructor: "Mohamed Triki",
-      rating: 4.7,
-      students: 3421,
-      price: 120,
-      image: "/course-3.jpg",
-      category: "Marketing",
-      level: "Advanced",
-      duration: "15 hours"
-    },
-    {
-      id: 4,
-      title: "Tunisian History & Heritage",
-      instructor: "Leila Mansouri",
-      rating: 4.6,
-      students: 892,
-      price: 55,
-      image: "/course-4.jpg",
-      category: "History",
-      level: "Beginner",
-      duration: "10 hours"
-    },
-    {
-      id: 5,
-      title: "React & Next.js Development",
-      instructor: "Youssef Hamdani",
-      rating: 4.9,
-      students: 1967,
-      price: 99,
-      image: "/course-5.jpg",
-      category: "Programming",
-      level: "Intermediate",
-      duration: "18 hours"
-    },
-    {
-      id: 6,
-      title: "Business French for Professionals",
-      instructor: "Amira Zouari",
-      rating: 4.5,
-      students: 1456,
-      price: 75,
-      image: "/course-6.jpg",
-      category: "Languages",
-      level: "Intermediate",
-      duration: "14 hours"
-    }
-  ];
-
-  const testimonials = [
-    {
-      name: "Sarra Ben Ahmed",
-      role: "Software Developer",
-      content: "TuniLearn helped me transition from traditional studies to modern tech skills. The quality of courses is exceptional!",
-      avatar: "/avatar-1.jpg",
-      rating: 5
-    },
-    {
-      name: "Karim Mestiri",
-      role: "Marketing Manager",
-      content: "As a busy professional, I love the flexibility of learning at my own pace. The instructors are top-notch.",
-      avatar: "/avatar-2.jpg",
-      rating: 5
-    },
-    {
-      name: "Nour Belhadj",
-      role: "University Student",
-      content: "The courses complement my university studies perfectly. Great platform for Tunisian learners!",
-      avatar: "/avatar-3.jpg",
-      rating: 5
-    }
-  ];
+  useEffect(() => {
+    // Fetch courses and testimonials if needed
+    setLoadingCourses(false);
+    setFeaturedCourses([]);
+    setTestimonials([]);
+  }, []);
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">
-      {/* Navigation */}
-      <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo */}
-            <div className="flex items-center space-x-2">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl flex items-center justify-center">
-                <span className="text-lg font-bold text-white">TL</span>
-              </div>
-              <span className="text-xl font-bold text-gray-900 dark:text-white">TuniLearn</span>
-            </div>
-
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-8">
-              <Link href="/" className="text-gray-700 dark:text-gray-200 hover:text-blue-600 transition-colors">
-                Home
-              </Link>
-              <Link href="/courses" className="text-gray-700 dark:text-gray-200 hover:text-blue-600 transition-colors">
-                Courses
-              </Link>
-              <Link href="/about" className="text-gray-700 dark:text-gray-200 hover:text-blue-600 transition-colors">
-                About
-              </Link>
-              <Link href="/contact" className="text-gray-700 dark:text-gray-200 hover:text-blue-600 transition-colors">
-                Contact
-              </Link>
-            </div>
-
-            {/* Auth Buttons */}
-            <div className="hidden md:flex items-center space-x-4">
-              {isAuthenticated ? (
-                <>
-                  <span className="text-gray-700 dark:text-gray-200">
-                    Welcome, {user?.name}
-                  </span>
-                  {isTeacher && (
-                    <Link 
-                      href="/teacher/dashboard" 
-                      className="text-gray-700 dark:text-gray-200 hover:text-blue-600 transition-colors font-medium"
-                    >
-                      Dashboard
-                    </Link>
-                  )}
-                  {isStudent && (
-                    <Link 
-                      href="/student/dashboard" 
-                      className="text-gray-700 dark:text-gray-200 hover:text-blue-600 transition-colors font-medium"
-                    >
-                      My Learning
-                    </Link>
-                  )}
-                  <button 
-                    onClick={logout}
-                    className="btn-primary"
-                  >
-                    Sign Out
-                  </button>
-                </>
-              ) : (
-                <>
-                  <Link 
-                    href="/login" 
-                    className="text-gray-700 dark:text-gray-200 hover:text-blue-600 transition-colors font-medium"
-                  >
-                    Sign In
-                  </Link>
-                  <Link 
-                    href="/register" 
-                    className="btn-primary"
-                  >
-                    Get Started
-                  </Link>
-                </>
-              )}
-            </div>
-
-            {/* Mobile menu button */}
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
-            >
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                {isMenuOpen ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                )}
-              </svg>
-            </button>
-          </div>
-
-          {/* Mobile Navigation */}
-          {isMenuOpen && (
-            <div className="md:hidden py-4 border-t border-gray-200 dark:border-gray-700">
-              <div className="flex flex-col space-y-4">
-                <Link href="/" className="text-gray-700 dark:text-gray-200 hover:text-blue-600 transition-colors">
-                  Home
-                </Link>
-                <Link href="/courses" className="text-gray-700 dark:text-gray-200 hover:text-blue-600 transition-colors">
-                  Courses
-                </Link>
-                <Link href="/about" className="text-gray-700 dark:text-gray-200 hover:text-blue-600 transition-colors">
-                  About
-                </Link>
-                <Link href="/contact" className="text-gray-700 dark:text-gray-200 hover:text-blue-600 transition-colors">
-                  Contact
-                </Link>
-                <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                  {isAuthenticated ? (
-                    <>
-                      <div className="mb-3 text-gray-700 dark:text-gray-200">
-                        Welcome, {user?.name}
-                      </div>
-                      {isTeacher && (
-                        <Link 
-                          href="/teacher/dashboard" 
-                          className="block text-gray-700 dark:text-gray-200 hover:text-blue-600 transition-colors mb-2"
-                        >
-                          Dashboard
-                        </Link>
-                      )}
-                      {isStudent && (
-                        <Link 
-                          href="/student/dashboard" 
-                          className="block text-gray-700 dark:text-gray-200 hover:text-blue-600 transition-colors mb-2"
-                        >
-                          My Learning
-                        </Link>
-                      )}
-                      <button 
-                        onClick={logout}
-                        className="btn-primary inline-block"
-                      >
-                        Sign Out
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <Link 
-                        href="/login" 
-                        className="block text-gray-700 dark:text-gray-200 hover:text-blue-600 transition-colors mb-2"
-                      >
-                        Sign In
-                      </Link>
-                      <Link 
-                        href="/register" 
-                        className="btn-primary inline-block"
-                      >
-                        Get Started
-                      </Link>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </nav>
-
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-blue-50 via-white to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -328,75 +77,48 @@ export default function Home() {
       <section className="py-20 bg-gray-50 dark:bg-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              Featured Courses
-            </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              Discover our most popular courses designed by industry experts and loved by students
-            </p>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">Featured Courses</h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">Discover our most popular courses designed by industry experts and loved by students</p>
           </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredCourses.map((course) => (
-              <div key={course.id} className="card hover:shadow-xl transition-shadow cursor-pointer">
-                <div className="bg-gradient-to-br from-blue-100 to-cyan-100 dark:from-blue-900 dark:to-cyan-900 h-48 rounded-lg mb-4 flex items-center justify-center">
-                  <div className="text-4xl">📚</div>
-                </div>
-                
-                <div className="mb-3">
-                  <span className="inline-block px-3 py-1 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded-full">
-                    {course.category}
-                  </span>
-                  <span className="inline-block px-3 py-1 text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200 rounded-full ml-2">
-                    {course.level}
-                  </span>
-                </div>
-
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                  {course.title}
-                </h3>
-                
-                <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">
-                  by {course.instructor}
-                </p>
-
-                <div className="flex items-center mb-4">
-                  <div className="flex items-center">
-                    {[...Array(5)].map((_, i) => (
-                      <svg
-                        key={i}
-                        className={`w-4 h-4 ${i < Math.floor(course.rating) ? 'text-yellow-400' : 'text-gray-300'}`}
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                    ))}
-                    <span className="text-sm text-gray-600 dark:text-gray-300 ml-2">
-                      {course.rating} ({course.students} students)
-                    </span>
+            {loadingCourses ? (
+              <div className="col-span-3 text-center">Loading courses...</div>
+            ) : coursesError ? (
+              <div className="col-span-3 text-center text-red-500">{coursesError}</div>
+            ) : featuredCourses.length === 0 ? (
+              <div className="col-span-3 text-center">No courses found.</div>
+            ) : (
+              featuredCourses.map((course) => (
+                <div key={course.id} className="card hover:shadow-xl transition-shadow cursor-pointer">
+                  <div className="bg-gradient-to-br from-blue-100 to-cyan-100 dark:from-blue-900 dark:to-cyan-900 h-48 rounded-lg mb-4 flex items-center justify-center">
+                    <div className="text-4xl">📚</div>
+                  </div>
+                  <div className="mb-3">
+                    <span className="inline-block px-3 py-1 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded-full">{course.category}</span>
+                    <span className="inline-block px-3 py-1 text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200 rounded-full ml-2">{course.level}</span>
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{course.title}</h3>
+                  <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">by {course.instructor || (course.teacher && course.teacher.name) || 'Unknown'}</p>
+                  <div className="flex items-center mb-4">
+                    <div className="flex items-center">
+                      {[...Array(5)].map((_, i) => (
+                        <svg key={i} className={`w-4 h-4 ${i < Math.floor(course.rating) ? 'text-yellow-400' : 'text-gray-300'}`} fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                      ))}
+                      <span className="text-sm text-gray-600 dark:text-gray-300 ml-2">{course.rating} ({course.students} students)</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm text-gray-500 dark:text-gray-400">{course.duration}</div>
+                    <div className="text-2xl font-bold text-blue-600">{course.price} DT</div>
                   </div>
                 </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="text-sm text-gray-500 dark:text-gray-400">
-                    {course.duration}
-                  </div>
-                  <div className="text-2xl font-bold text-blue-600">
-                    {course.price} DT
-                  </div>
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
-
           <div className="text-center mt-12">
-            <Link 
-              href="/courses" 
-              className="btn-primary text-lg px-8 py-4"
-            >
-              View All Courses
-            </Link>
+            <Link href="/courses" className="btn-primary text-lg px-8 py-4">View All Courses</Link>
           </div>
         </div>
       </section>

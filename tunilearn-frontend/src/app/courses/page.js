@@ -1,140 +1,46 @@
 'use client';
 
+// ...existing code...
+import { useState, useEffect } from 'react';
+import { getCourses } from '../../services/crudService';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function CoursesPage() {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedLevel, setSelectedLevel] = useState('All');
+  const { user } = useAuth();
 
   const categories = ['All', 'Programming', 'Literature', 'Marketing', 'History', 'Languages', 'Business', 'Design'];
   const levels = ['All', 'Beginner', 'Intermediate', 'Advanced'];
 
-  const allCourses = [
-    {
-      id: 1,
-      title: "Modern JavaScript Development",
-      instructor: "Ahmed Ben Salem",
-      rating: 4.8,
-      students: 2547,
-      price: 89,
-      image: "/course-1.jpg",
-      category: "Programming",
-      level: "Intermediate",
-      duration: "12 hours",
-      description: "Master modern JavaScript ES6+ features, async programming, and build real-world applications."
-    },
-    {
-      id: 2,
-      title: "Arabic Literature & Poetry",
-      instructor: "Fatma Khelifi",
-      rating: 4.9,
-      students: 1834,
-      price: 65,
-      image: "/course-2.jpg",
-      category: "Literature",
-      level: "Beginner",
-      duration: "8 hours",
-      description: "Explore the rich world of Arabic literature and poetry from classical to contemporary works."
-    },
-    {
-      id: 3,
-      title: "Digital Marketing Mastery",
-      instructor: "Mohamed Triki",
-      rating: 4.7,
-      students: 3421,
-      price: 120,
-      image: "/course-3.jpg",
-      category: "Marketing",
-      level: "Advanced",
-      duration: "15 hours",
-      description: "Complete digital marketing course covering SEO, SEM, social media, and analytics."
-    },
-    {
-      id: 4,
-      title: "Tunisian History & Heritage",
-      instructor: "Leila Mansouri",
-      rating: 4.6,
-      students: 892,
-      price: 55,
-      image: "/course-4.jpg",
-      category: "History",
-      level: "Beginner",
-      duration: "10 hours",
-      description: "Journey through Tunisia's rich history from ancient Carthage to modern times."
-    },
-    {
-      id: 5,
-      title: "React & Next.js Development",
-      instructor: "Youssef Hamdani",
-      rating: 4.9,
-      students: 1967,
-      price: 99,
-      image: "/course-5.jpg",
-      category: "Programming",
-      level: "Intermediate",
-      duration: "18 hours",
-      description: "Build modern web applications with React and Next.js from scratch to deployment."
-    },
-    {
-      id: 6,
-      title: "Business French for Professionals",
-      instructor: "Amira Zouari",
-      rating: 4.5,
-      students: 1456,
-      price: 75,
-      image: "/course-6.jpg",
-      category: "Languages",
-      level: "Intermediate",
-      duration: "14 hours",
-      description: "Master business French for professional communication and career advancement."
-    },
-    {
-      id: 7,
-      title: "Python for Data Science",
-      instructor: "Karim Belhadj",
-      rating: 4.8,
-      students: 2156,
-      price: 110,
-      image: "/course-7.jpg",
-      category: "Programming",
-      level: "Beginner",
-      duration: "20 hours",
-      description: "Learn Python programming and data analysis with pandas, numpy, and matplotlib."
-    },
-    {
-      id: 8,
-      title: "Graphic Design Fundamentals",
-      instructor: "Nadia Slim",
-      rating: 4.7,
-      students: 1678,
-      price: 85,
-      image: "/course-8.jpg",
-      category: "Design",
-      level: "Beginner",
-      duration: "16 hours",
-      description: "Master the principles of graphic design using Adobe Creative Suite and modern tools."
-    },
-    {
-      id: 9,
-      title: "Entrepreneurship in Tunisia",
-      instructor: "Samir Chebil",
-      rating: 4.6,
-      students: 934,
-      price: 95,
-      image: "/course-9.jpg",
-      category: "Business",
-      level: "Intermediate",
-      duration: "12 hours",
-      description: "Start and grow your business in Tunisia with practical insights and real case studies."
-    }
-  ];
 
-  const filteredCourses = allCourses.filter(course => {
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    async function fetchCourses() {
+      try {
+        const res = await getCourses();
+        setCourses(res.data);
+      } catch (err) {
+        setError('Failed to fetch courses');
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchCourses();
+  }, []);
+
+  const filteredCourses = courses.filter(course => {
     const categoryMatch = selectedCategory === 'All' || course.category === selectedCategory;
     const levelMatch = selectedLevel === 'All' || course.level === selectedLevel;
     return categoryMatch && levelMatch;
   });
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">
@@ -195,7 +101,17 @@ export default function CoursesPage() {
             <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
               Discover high-quality courses taught by expert instructors. Learn at your own pace and advance your career.
             </p>
-            
+            {/* Admin-only Manage Courses button */}
+            {user && user.role === 'ADMIN' && (
+              <div className="mb-4 flex justify-center">
+                <Link href="/admin/dashboard" className="btn-primary px-6 py-2 mr-4">
+                  Manage Courses
+                </Link>
+                <Link href="/admin/pending" className="btn-secondary px-6 py-2">
+                  Pending Approvals
+                </Link>
+              </div>
+            )}
             {/* Search Bar */}
             <div className="max-w-md mx-auto">
               <div className="relative">
@@ -252,7 +168,7 @@ export default function CoursesPage() {
             </div>
 
             <div className="text-sm text-gray-600 dark:text-gray-300">
-              Showing {filteredCourses.length} of {allCourses.length} courses
+              Showing {filteredCourses.length} of {courses.length} courses
             </div>
           </div>
         </div>
