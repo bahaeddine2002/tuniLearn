@@ -1,0 +1,1 @@
+// All authentication and role checks removed for static user/dev mode.
