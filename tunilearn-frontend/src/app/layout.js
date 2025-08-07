@@ -18,6 +18,7 @@ export const metadata = {
 };
 
 import RoleNavbar from "./components/RoleNavbar";
+import PublicNavbar from "./components/PublicNavbar";
 
 export default function RootLayout({ children }) {
   return (
@@ -26,6 +27,7 @@ export default function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Providers>
+          <PublicNavbar />
           <RoleNavbar />
           {children}
         </Providers>

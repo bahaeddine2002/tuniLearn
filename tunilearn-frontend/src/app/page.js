@@ -3,20 +3,10 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 export default function HomePage() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isTeacher, setIsTeacher] = useState(false);
-  const [isStudent, setIsStudent] = useState(false);
-  const [user, setUser] = useState(null);
   const [loadingCourses, setLoadingCourses] = useState(true);
   const [coursesError, setCoursesError] = useState('');
   const [featuredCourses, setFeaturedCourses] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
-
-  const logout = () => {
-    // logic to clear token and redirect
-    setIsAuthenticated(false);
-  };
 
   useEffect(() => {
     // Fetch courses and testimonials if needed
@@ -27,80 +17,6 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">
-      {/* Navigation */}
-      <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo */}
-            <div className="flex items-center space-x-2">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl flex items-center justify-center">
-                <span className="text-lg font-bold text-white">TL</span>
-              </div>
-              <span className="text-xl font-bold text-gray-900 dark:text-white">TuniLearn</span>
-            </div>
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-8">
-              <Link href="/" className="text-gray-700 dark:text-gray-200 hover:text-blue-600 transition-colors">Home</Link>
-              <Link href="/courses" className="text-gray-700 dark:text-gray-200 hover:text-blue-600 transition-colors">Courses</Link>
-              <Link href="/about" className="text-gray-700 dark:text-gray-200 hover:text-blue-600 transition-colors">About</Link>
-              <Link href="/contact" className="text-gray-700 dark:text-gray-200 hover:text-blue-600 transition-colors">Contact</Link>
-            </div>
-            {/* Auth Buttons */}
-            <div className="hidden md:flex items-center space-x-4">
-              {isAuthenticated ? (
-                <>
-                  <span className="text-gray-700 dark:text-gray-200">Welcome, {user?.name}</span>
-                  {isTeacher && <Link href="/teacher/dashboard" className="text-gray-700 dark:text-gray-200 hover:text-blue-600 transition-colors font-medium">Dashboard</Link>}
-                  {isStudent && <Link href="/student/dashboard" className="text-gray-700 dark:text-gray-200 hover:text-blue-600 transition-colors font-medium">My Learning</Link>}
-                  <button onClick={logout} className="btn-primary">Sign Out</button>
-                </>
-              ) : (
-                <>
-                  <Link href="/login" className="text-gray-700 dark:text-gray-200 hover:text-blue-600 transition-colors font-medium">Sign In</Link>
-                  <Link href="/register" className="btn-primary">Get Started</Link>
-                </>
-              )}
-            </div>
-            {/* Mobile menu button */}
-            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="md:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800">
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                {isMenuOpen ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                )}
-              </svg>
-            </button>
-          </div>
-          {/* Mobile Navigation */}
-          {isMenuOpen && (
-            <div className="md:hidden py-4 border-t border-gray-200 dark:border-gray-700">
-              <div className="flex flex-col space-y-4">
-                <Link href="/" className="text-gray-700 dark:text-gray-200 hover:text-blue-600 transition-colors">Home</Link>
-                <Link href="/courses" className="text-gray-700 dark:text-gray-200 hover:text-blue-600 transition-colors">Courses</Link>
-                <Link href="/about" className="text-gray-700 dark:text-gray-200 hover:text-blue-600 transition-colors">About</Link>
-                <Link href="/contact" className="text-gray-700 dark:text-gray-200 hover:text-blue-600 transition-colors">Contact</Link>
-                <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                  {isAuthenticated ? (
-                    <>
-                      <div className="mb-3 text-gray-700 dark:text-gray-200">Welcome, {user?.name}</div>
-                      {isTeacher && <Link href="/teacher/dashboard" className="block text-gray-700 dark:text-gray-200 hover:text-blue-600 transition-colors mb-2">Dashboard</Link>}
-                      {isStudent && <Link href="/student/dashboard" className="block text-gray-700 dark:text-gray-200 hover:text-blue-600 transition-colors mb-2">My Learning</Link>}
-                      <button onClick={logout} className="btn-primary inline-block">Sign Out</button>
-                    </>
-                  ) : (
-                    <>
-                      <Link href="/login" className="block text-gray-700 dark:text-gray-200 hover:text-blue-600 transition-colors mb-2">Sign In</Link>
-                      <Link href="/register" className="btn-primary inline-block">Get Started</Link>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </nav>
-
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-blue-50 via-white to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

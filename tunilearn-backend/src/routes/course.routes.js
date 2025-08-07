@@ -1,36 +1,31 @@
 const express = require('express');
 const router = express.Router();
 
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
 const courseController = require('../controllers/courseController');
+const { authenticate, isTeacher, requireProfileCompletion } = require('../middleware/auth.middleware');
+const { courseUpload, handleMulterError } = require('../middleware/upload.middleware');
 
-// Ensure uploads directory exists
-const uploadDir = path.join(__dirname, '../../uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
-}
+// Public routes (no authentication required)
+router.get('/', courseController.getCourses);
+router.get('/:id', courseController.getCourse);
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, uploadDir);
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
-  }
-});
-const upload = multer({ storage });
+// Protected routes (authentication required)
+router.use(authenticate);
+router.use(requireProfileCompletion);
 
-// Accept multiple files: one thumbnail and multiple resources
-router.post('/', upload.fields([
+// Teacher-only routes
+router.post('/', isTeacher, courseUpload.fields([
   { name: 'thumbnail', maxCount: 1 },
   { name: 'resources', maxCount: 10 }
 ]), courseController.createCourse);
-router.get('/', courseController.getCourses);
-router.get('/:id', courseController.getCourse);
-router.put('/:id', courseController.updateCourse);
-router.delete('/:id', courseController.deleteCourse);
+
+router.put('/:id', isTeacher, courseController.updateCourse);
+router.delete('/:id', isTeacher, courseController.deleteCourse);
+
+// Course creation flow - add chapters to courses
+router.post('/:courseId/chapters', isTeacher, courseController.addChapterToCourse);
+
+// Handle multer errors
+router.use(handleMulterError);
 
 module.exports = router;

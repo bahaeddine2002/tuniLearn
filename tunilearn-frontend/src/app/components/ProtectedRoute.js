@@ -4,8 +4,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
-export default function ProtectedRoute({ children, requireRole = null }) {
-  const { user, loading } = useAuth();
+export default function ProtectedRoute({ children, requireRole = null, requireProfileCompletion = true }) {
+  const { user, loading, profileCompleted } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -16,8 +16,14 @@ export default function ProtectedRoute({ children, requireRole = null }) {
         return;
       }
 
+      if (requireProfileCompletion && !profileCompleted) {
+        // Profile not completed, redirect to complete profile
+        router.push('/complete-profile');
+        return;
+      }
+
       if (requireRole) {
-        // Check if user has required role (handle both TEACHER and INSTRUCTOR for teacher role)
+        // Check if user has required role
         const hasRequiredRole = requireRole === 'TEACHER' 
           ? (user.role === 'TEACHER' || user.role === 'INSTRUCTOR')
           : user.role === requireRole;
@@ -28,14 +34,16 @@ export default function ProtectedRoute({ children, requireRole = null }) {
             router.push('/teacher/dashboard');
           } else if (user.role === 'STUDENT') {
             router.push('/student/dashboard');
+          } else if (user.role === 'ADMIN') {
+            router.push('/admin/dashboard');
           } else {
-            router.push('/');
+            router.push('/complete-profile');
           }
           return;
         }
       }
     }
-  }, [user, loading, requireRole, router]);
+  }, [user, loading, requireRole, requireProfileCompletion, profileCompleted, router]);
 
   // Show loading while checking authentication
   if (loading) {
@@ -48,20 +56,19 @@ export default function ProtectedRoute({ children, requireRole = null }) {
           <div className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
             Loading...
           </div>
-          <div className="text-gray-600 dark:text-gray-300">
-            Please wait while we verify your access.
+          <div className="text-sm text-gray-600 dark:text-gray-300">
+            Verifying your authentication...
           </div>
         </div>
       </div>
     );
   }
 
-  // Show nothing while redirecting
-  if (!user) {
+  // Don't render children if user is not authenticated or doesn't meet requirements
+  if (!user || (requireProfileCompletion && !profileCompleted)) {
     return null;
   }
 
-  // Check role requirements
   if (requireRole) {
     const hasRequiredRole = requireRole === 'TEACHER' 
       ? (user.role === 'TEACHER' || user.role === 'INSTRUCTOR')
@@ -72,6 +79,5 @@ export default function ProtectedRoute({ children, requireRole = null }) {
     }
   }
 
-  // User is authenticated and has correct role, show the protected content
   return children;
 }
